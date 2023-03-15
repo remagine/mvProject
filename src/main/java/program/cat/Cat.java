@@ -39,6 +39,7 @@ public class Cat implements Program {
         try {
             bufferedOutputStream.flush();
             System.out.println("cat complete");
+            bufferedOutputStream.close();
         } catch (IOException e) {
             e.printStackTrace();
         }
