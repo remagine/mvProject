@@ -32,11 +32,6 @@ public class Main {
                     break;
                 }
 
-                if (filePaths.size() != 2) {
-                    System.out.println("need 2 file paths");
-                    break;
-                }
-
                 Program program = null;
                 // enum값을 switch에서는 활용할 수 없구나
                 switch (command) {
