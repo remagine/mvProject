@@ -25,7 +25,7 @@ public class Mv implements Program {
             Files.move(originPath, destinationPath);
             System.out.println("move complete");
         } catch (IOException e) {
-            throw new RuntimeException(e);
+            e.printStackTrace();
         }
     }
 }
