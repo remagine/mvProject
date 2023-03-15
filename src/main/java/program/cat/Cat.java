@@ -15,6 +15,11 @@ public class Cat implements Program {
 
     @Override
     public void execute() {
+        boolean validate = validate(fileNames);
+        if(!validate){
+            System.out.println("filePaths arguments error");
+            return;
+        }
         OutputStream outputStream = System.out;
         BufferedOutputStream bufferedOutputStream = new BufferedOutputStream(outputStream, 8192);
         for (String fileName : fileNames) {
@@ -43,5 +48,10 @@ public class Cat implements Program {
         } catch (IOException e) {
             e.printStackTrace();
         }
+    }
+
+    @Override
+    public boolean validate(List<String> filePaths) {
+        return filePaths.size() >= 0;
     }
 }

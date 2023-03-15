@@ -1,7 +1,11 @@
 package program;
 
+import java.util.List;
+
 public interface Program {
-    public void execute();
+    void execute();
+    boolean validate(List<String> filePaths);
+
 
 
 }
