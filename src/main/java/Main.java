@@ -17,10 +17,6 @@ public class Main {
         List<String> commandList = Arrays.stream(Commands.values())
                 .map(Commands::getCommandString)
                 .collect(Collectors.toList());
-        Map<Commands, Class<? extends Program>> commandMap = new HashMap<>();
-        commandMap.put(Commands.MV, Mv.class);
-        commandMap.put(Commands.CP, Cp.class);
-        commandMap.put(Commands.CAT, Cat.class);
         InputStream inputStream = System.in;
         try (BufferedInputStream bufferedInputStream = new BufferedInputStream(inputStream);
              InputStreamReader inputStreamReader = new InputStreamReader(bufferedInputStream);
@@ -41,18 +37,17 @@ public class Main {
                     break;
                 }
 
-
-                if(Commands.MV.equals(command)){
+                if(Commands.MV.getCommandString().equals(command)){
                     Program program = new Mv(filePaths);
                     program.execute();
                 }
 
-                if(Commands.CP.equals(command)){
+                if(Commands.CP.getCommandString().equals(command)){
                     Program program = new Cp(filePaths);
                     program.execute();
                 }
 
-                if(Commands.CAT.equals(command)){
+                if(Commands.CAT.getCommandString().equals(command)){
                     Program program = new Cat(filePaths);
                     program.execute();
                 }
