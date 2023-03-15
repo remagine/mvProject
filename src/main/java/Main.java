@@ -5,12 +5,11 @@ import program.cp.Cp;
 import program.mv.Mv;
 
 import java.io.*;
-import java.lang.reflect.InvocationTargetException;
+import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.stream.Collectors;
+
 
 public class Main {
     public static void main(String[] args) {
@@ -18,8 +17,9 @@ public class Main {
                 .map(Commands::getCommandString)
                 .collect(Collectors.toList());
         InputStream inputStream = System.in;
-        try (BufferedInputStream bufferedInputStream = new BufferedInputStream(inputStream);
-             InputStreamReader inputStreamReader = new InputStreamReader(bufferedInputStream);
+
+        try (BufferedInputStream bufferedInputStream = new BufferedInputStream(inputStream, 8192);
+             InputStreamReader inputStreamReader = new InputStreamReader(bufferedInputStream, StandardCharsets.UTF_8);
              BufferedReader bufferedReader = new BufferedReader(inputStreamReader, 8192);) {
             while (true) {
                 String inputString = bufferedReader.readLine();
@@ -37,20 +37,29 @@ public class Main {
                     break;
                 }
 
-                if(Commands.MV.getCommandString().equals(command)){
-                    Program program = new Mv(filePaths);
-                    program.execute();
+                Program program = null;
+                // enum값을 switch에서는 활용할 수 없구나
+                switch (command) {
+                    case "mv":
+                        program = new Mv(filePaths);
+                        break;
+                    case "cp":
+                        program = new Cp(filePaths);
+                        break;
+                    case "cat":
+                        program = new Cat(filePaths);
+                        break;
+                    default:
+                        System.out.println("unknown command");
+                        break;
                 }
 
-                if(Commands.CP.getCommandString().equals(command)){
-                    Program program = new Cp(filePaths);
-                    program.execute();
+                if (program == null) {
+                    System.out.println("program doesn't exist");
+                    break;
                 }
 
-                if(Commands.CAT.getCommandString().equals(command)){
-                    Program program = new Cat(filePaths);
-                    program.execute();
-                }
+                program.execute();
             }
         } catch (IOException e) {
             e.printStackTrace();

@@ -10,7 +10,6 @@ import java.nio.file.Paths;
 import java.util.List;
 
 public class Mv implements Program {
-    private Commands command = Commands.MV;
     private String filePath1;
     private String filePath2;
 
@@ -24,6 +23,7 @@ public class Mv implements Program {
         Path destinationPath = Paths.get(filePath2);
         try {
             Files.move(originPath, destinationPath);
+            System.out.println("move complete");
         } catch (IOException e) {
             throw new RuntimeException(e);
         }

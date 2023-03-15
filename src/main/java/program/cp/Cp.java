@@ -25,6 +25,7 @@ public class Cp implements Program {
         Path destinationPath = Paths.get(filePath2);
         try {
             Files.copy(originPath, destinationPath);
+            System.out.println("copy complete");
         } catch (IOException e) {
             throw new RuntimeException(e);
         }

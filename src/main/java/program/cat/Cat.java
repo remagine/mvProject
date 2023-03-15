@@ -35,8 +35,10 @@ public class Cat implements Program {
                 e.printStackTrace();
             }
         }
+
         try {
             bufferedOutputStream.flush();
+            System.out.println("cat complete");
         } catch (IOException e) {
             e.printStackTrace();
         }
