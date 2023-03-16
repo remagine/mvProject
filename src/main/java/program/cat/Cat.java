@@ -7,7 +7,7 @@ import java.nio.charset.StandardCharsets;
 import java.util.List;
 
 public class Cat implements Program {
-    private List<String> fileNames;
+    private final List<String> fileNames;
 
     public Cat(List<String> fileNames) {
         this.fileNames = fileNames;
@@ -21,14 +21,14 @@ public class Cat implements Program {
             return;
         }
         OutputStream outputStream = System.out;
-        BufferedOutputStream bufferedOutputStream = new BufferedOutputStream(outputStream, 8192);
+        BufferedOutputStream bufferedOutputStream = new BufferedOutputStream(outputStream, bufferSize);
         for (String fileName : fileNames) {
             File file = new File(fileName);
 
             try (InputStream fileInputStream = new FileInputStream(file);
-                 BufferedInputStream bufferedInputStream = new BufferedInputStream(fileInputStream, 8192);
+                 BufferedInputStream bufferedInputStream = new BufferedInputStream(fileInputStream, bufferSize);
             ) {
-                byte[] buffer = new byte[8192];
+                byte[] buffer = new byte[bufferSize];
                 while (true) {
                     int len = bufferedInputStream.read(buffer);
                     if (len == -1) {
@@ -52,6 +52,6 @@ public class Cat implements Program {
 
     @Override
     public boolean validate(List<String> filePaths) {
-        return filePaths.size() >= 0;
+        return filePaths.size() > 0;
     }
 }

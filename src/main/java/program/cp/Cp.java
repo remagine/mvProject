@@ -3,17 +3,16 @@ package program.cp;
 import program.Commands;
 import program.Program;
 
-import java.io.File;
-import java.io.IOException;
+import java.io.*;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.List;
 
 public class Cp implements Program {
-    private String filePath1;
-    private String filePath2;
-    private List<String> fileNames;
+    private final String filePath1;
+    private final String filePath2;
+    private final List<String> fileNames;
 
     public Cp(List<String> filePaths) {
         fileNames = filePaths;
@@ -24,19 +23,35 @@ public class Cp implements Program {
     @Override
     public void execute() {
         boolean validate = validate(fileNames);
-        if(!validate){
+        if (!validate) {
             System.out.println("filePaths arguments error");
             return;
         }
-        Path originPath = Paths.get(filePath1);
-        Path destinationPath = Paths.get(filePath2);
-        try {
-            Files.copy(originPath, destinationPath);
-            System.out.println("copy complete");
+        if (!filePath1.equals(filePath2)) {
+            copyFile();
+        }
+    }
+
+    public void copyFile() {
+        File originFile = new File(filePath1);
+        byte[] buffer = new byte[bufferSize];
+
+        try (InputStream inputStream = new FileInputStream(originFile);
+             BufferedInputStream bufferedInputStream = new BufferedInputStream(inputStream, bufferSize);
+             OutputStream outputStream = new FileOutputStream(filePath2);
+             BufferedOutputStream bufferedOutputStream = new BufferedOutputStream(outputStream, bufferSize);
+        ) {
+            while (true) {
+                int len = bufferedInputStream.read(buffer);
+                if (len == -1) {
+                    break;
+                }
+                bufferedOutputStream.write(buffer);
+            }
+            bufferedOutputStream.flush();
         } catch (IOException e) {
             e.printStackTrace();
         }
-
     }
 
     @Override

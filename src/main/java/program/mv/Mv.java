@@ -1,18 +1,17 @@
 package program.mv;
 
-import program.Commands;
 import program.Program;
+import program.cp.Cp;
 
-import java.io.IOException;
+import java.io.*;
 import java.nio.file.Files;
-import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.List;
 
 public class Mv implements Program {
-    private String filePath1;
-    private String filePath2;
-    private List<String> fileNames;
+    private final String filePath1;
+    private final String filePath2;
+    private final List<String> fileNames;
 
     public Mv(List<String> filePaths) {
         fileNames = filePaths;
@@ -20,24 +19,26 @@ public class Mv implements Program {
         filePath2 = filePaths.get(1);
     }
 
-    public void execute()  {
+    public void execute() {
         boolean validate = validate(fileNames);
-        if(!validate){
+        if (!validate) {
             System.out.println("filePaths arguments error");
             return;
         }
-        Path originPath = Paths.get(filePath1);
-        Path destinationPath = Paths.get(filePath2);
-        try {
-            Files.move(originPath, destinationPath);
-            System.out.println("move complete");
-        } catch (IOException e) {
-            e.printStackTrace();
+        if (!filePath1.equals(filePath2)) {
+            Cp cp = new Cp(fileNames);
+            cp.copyFile();
+
+            try {
+                Files.delete(Paths.get(filePath1)); // try resource 안에서 실행하면 FileSystemException: file1.txt: 다른 프로세스가 파일을 사용 중이기 때문에 프로세스가 액세스 할 수 없습니다.
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
         }
     }
 
     @Override
     public boolean validate(List<String> filePaths) {
-        return filePaths.size() != 2;
+        return filePaths.size() == 2;
     }
 }
