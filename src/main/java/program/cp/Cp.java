@@ -1,44 +1,48 @@
 package program.cp;
 
-import program.Commands;
-import program.Program;
+import program.Command;
 
 import java.io.*;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.List;
 
-public class Cp implements Program {
-    private final String filePath1;
-    private final String filePath2;
-    private final List<String> fileNames;
+public class Cp implements Command {
+    private final String sourceFilePath;
+    private final String destinationFilePath;
 
     public Cp(List<String> filePaths) {
-        fileNames = filePaths;
-        filePath1 = filePaths.get(0);
-        filePath2 = filePaths.get(1);
+        if(isInvalid(filePaths)){
+            throw new IllegalArgumentException();
+        }
+        sourceFilePath = filePaths.get(0);
+        destinationFilePath = filePaths.get(1);
+    }
+
+    private boolean isInvalid(List<String> filePaths){
+        return filePaths.size() != 2;
     }
 
     @Override
     public void execute() {
-        boolean validate = validate(fileNames);
-        if (!validate) {
-            System.out.println("filePaths arguments error");
-            return;
-        }
-        if (!filePath1.equals(filePath2)) {
+        if (!sourceFilePath.equals(destinationFilePath)) {
             copyFile();
         }
     }
 
-    public void copyFile() {
-        File originFile = new File(filePath1);
+
+    private void copyFile() {
+        File originFile = new File(sourceFilePath);
         byte[] buffer = new byte[bufferSize];
+
+        // 1. destinationFilePath가 이미 존재한 경우
+        // sourceFilePath로 overwrite
+        // 2. sourceFilePath가 유효하지 않는 경우
+        // new FileNotFoundException
+        // 3. path가 동일한 경우
+        // 아무일도 하지 않는다.
 
         try (InputStream inputStream = new FileInputStream(originFile);
              BufferedInputStream bufferedInputStream = new BufferedInputStream(inputStream, bufferSize);
-             OutputStream outputStream = new FileOutputStream(filePath2);
+             OutputStream outputStream = new FileOutputStream(destinationFilePath);
              BufferedOutputStream bufferedOutputStream = new BufferedOutputStream(outputStream, bufferSize);
         ) {
             while (true) {
@@ -46,7 +50,7 @@ public class Cp implements Program {
                 if (len == -1) {
                     break;
                 }
-                bufferedOutputStream.write(buffer);
+                bufferedOutputStream.write(buffer, 0 , len);
             }
             bufferedOutputStream.flush();
         } catch (IOException e) {
@@ -54,8 +58,5 @@ public class Cp implements Program {
         }
     }
 
-    @Override
-    public boolean validate(List<String> filePaths) {
-        return filePaths.size() != 2;
-    }
+
 }

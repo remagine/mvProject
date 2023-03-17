@@ -1,5 +1,5 @@
-import program.Commands;
-import program.Program;
+import program.CommandType;
+import program.Command;
 import program.cat.Cat;
 import program.cp.Cp;
 import program.mv.Mv;
@@ -8,14 +8,15 @@ import java.io.*;
 import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 
 public class Main {
     public static void main(String[] args) {
-        List<String> commandList = Arrays.stream(Commands.values())
-                .map(Commands::getCommandString)
-                .collect(Collectors.toList());
+        Set<String> commandSet = Arrays.stream(CommandType.values())
+                .map(CommandType::getCommandString)
+                .collect(Collectors.toSet());
         InputStream inputStream = System.in;
 
         try (BufferedInputStream bufferedInputStream = new BufferedInputStream(inputStream, 8192);
@@ -27,21 +28,20 @@ public class Main {
                 String command = inputStringList.get(0);
                 List<String> filePaths = inputStringList.subList(1, inputStringList.size());
 
-                if (!commandList.contains(command)) {
+                if (!commandSet.contains(command)) {
                     System.out.println("command not found");
                     break;
                 }
 
-                Program program = null;
-                // enum값을 switch에서는 활용할 수 없구나
-                switch (command) {
-                    case "mv":
+                Command program = null;
+                switch (CommandType.fromString(command)) {
+                    case MV:
                         program = new Mv(filePaths);
                         break;
-                    case "cp":
+                    case CP:
                         program = new Cp(filePaths);
                         break;
-                    case "cat":
+                    case CAT:
                         program = new Cat(filePaths);
                         break;
                     default:
@@ -56,7 +56,7 @@ public class Main {
 
                 program.execute();
             }
-        } catch (IOException e) {
+        } catch (IOException | IllegalArgumentException e) {
             e.printStackTrace();
         }
     }
