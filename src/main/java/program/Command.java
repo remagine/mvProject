@@ -1,9 +1,8 @@
 package program;
 
-import java.util.List;
-
 public interface Command {
-    int bufferSize = 8192;
+    int BUFFER_SIZE = 8192;
 
     void execute();
+
 }

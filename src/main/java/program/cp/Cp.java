@@ -3,60 +3,59 @@ package program.cp;
 import program.Command;
 
 import java.io.*;
-import java.util.List;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.util.Objects;
 
 public class Cp implements Command {
-    private final String sourceFilePath;
-    private final String destinationFilePath;
+    private final Path sourceFilePath;
+    private final Path destinationFilePath;
 
-    public Cp(List<String> filePaths) {
-        if(isInvalid(filePaths)){
-            throw new IllegalArgumentException();
+
+    public Cp(Path sourceFilePath, Path destinationFilePath) {
+        if (Objects.equals(sourceFilePath, destinationFilePath)) {
+            throw new IllegalArgumentException("경로가 동일합니다. sourceFilePath = " + sourceFilePath + ", destinationFilePath = " + destinationFilePath);
         }
-        sourceFilePath = filePaths.get(0);
-        destinationFilePath = filePaths.get(1);
+        this.sourceFilePath = sourceFilePath;
+        this.destinationFilePath = destinationFilePath;
     }
 
-    private boolean isInvalid(List<String> filePaths){
-        return filePaths.size() != 2;
+    public static Cp fromPath(String sourceFilePath, String destinationFilePath) {
+        return new Cp(
+                Paths.get(sourceFilePath),
+                Paths.get(destinationFilePath)
+        );
     }
 
     @Override
     public void execute() {
-        if (!sourceFilePath.equals(destinationFilePath)) {
-            copyFile();
+        if (Files.notExists(sourceFilePath)) {
+            throw new IllegalStateException("파일이 존재하지 않습니다. path = " + sourceFilePath);
         }
-    }
 
+        if (Files.exists(destinationFilePath)) {
+            throw new IllegalStateException("복사할 대상 파일이 존재합니다. path = " + destinationFilePath);
+        }
 
-    private void copyFile() {
-        File originFile = new File(sourceFilePath);
-        byte[] buffer = new byte[bufferSize];
+        byte[] buffer = new byte[BUFFER_SIZE];
 
-        // 1. destinationFilePath가 이미 존재한 경우
-        // sourceFilePath로 overwrite
-        // 2. sourceFilePath가 유효하지 않는 경우
-        // new FileNotFoundException
-        // 3. path가 동일한 경우
-        // 아무일도 하지 않는다.
-
-        try (InputStream inputStream = new FileInputStream(originFile);
-             BufferedInputStream bufferedInputStream = new BufferedInputStream(inputStream, bufferSize);
-             OutputStream outputStream = new FileOutputStream(destinationFilePath);
-             BufferedOutputStream bufferedOutputStream = new BufferedOutputStream(outputStream, bufferSize);
+        try (InputStream inputStream = Files.newInputStream(sourceFilePath);
+             BufferedInputStream bufferedInputStream = new BufferedInputStream(inputStream, BUFFER_SIZE);
+             OutputStream outputStream = Files.newOutputStream(destinationFilePath);
+             BufferedOutputStream bufferedOutputStream = new BufferedOutputStream(outputStream, BUFFER_SIZE);
         ) {
             while (true) {
                 int len = bufferedInputStream.read(buffer);
                 if (len == -1) {
                     break;
                 }
-                bufferedOutputStream.write(buffer, 0 , len);
+                bufferedOutputStream.write(buffer, 0, len);
             }
             bufferedOutputStream.flush();
         } catch (IOException e) {
             e.printStackTrace();
         }
     }
-
 
 }

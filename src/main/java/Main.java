@@ -11,12 +11,18 @@ import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+import static program.CommandType.*;
+
 
 public class Main {
     public static void main(String[] args) {
-        Set<String> commandSet = Arrays.stream(CommandType.values())
-                .map(CommandType::getCommandString)
-                .collect(Collectors.toSet());
+        if (true) {
+            try {
+                throw new NullPointerException();
+            } catch (Exception e) {
+                throw e;
+            }
+        }
         InputStream inputStream = System.in;
 
         try (BufferedInputStream bufferedInputStream = new BufferedInputStream(inputStream, 8192);
@@ -25,28 +31,34 @@ public class Main {
             while (true) {
                 String inputString = bufferedReader.readLine();
                 List<String> inputStringList = List.of(inputString.split(" "));
-                String command = inputStringList.get(0);
+                String commandStr = inputStringList.get(0);
+
+                CommandType commandType = null;
+                try {
+                    commandType = CommandType.fromString(commandStr);
+                } catch (IllegalArgumentException e) {
+                    System.out.println("command not found");
+                    continue;
+                }
                 List<String> filePaths = inputStringList.subList(1, inputStringList.size());
 
-                if (!commandSet.contains(command)) {
-                    System.out.println("command not found");
-                    break;
+                Command program = null;
+
+                if (commandType == MV && filePaths.size() == 2) {
+                    String sourceFilePath = filePaths.get(0);
+                    String destinationFilePath = filePaths.get(1);
+                    Cp cp = Cp.fromPath(sourceFilePath, destinationFilePath);
+                    program = new Mv(sourceFilePath, cp);
                 }
 
-                Command program = null;
-                switch (CommandType.fromString(command)) {
-                    case MV:
-                        program = new Mv(filePaths);
-                        break;
-                    case CP:
-                        program = new Cp(filePaths);
-                        break;
-                    case CAT:
-                        program = new Cat(filePaths);
-                        break;
-                    default:
-                        System.out.println("unknown command");
-                        break;
+                if (commandType == CP && filePaths.size() == 2) {
+                    String sourceFilePath = filePaths.get(0);
+                    String destinationFilePath = filePaths.get(1);
+                    program = Cp.fromPath(sourceFilePath, destinationFilePath);
+                }
+
+                if (commandType == CAT && !filePaths.isEmpty()) {
+                    program = Cat.fromPaths(filePaths);
                 }
 
                 if (program == null) {
@@ -58,6 +70,7 @@ public class Main {
             }
         } catch (IOException | IllegalArgumentException e) {
             e.printStackTrace();
+
         }
     }
 }
