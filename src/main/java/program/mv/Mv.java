@@ -17,11 +17,6 @@ public class Mv implements Command {
         this.cp = cp;
     }
 
-    /*public static Mv fromPath(String sourceFilePath, String destinationFilePath) {
-        Cp cp = new Cp(sourceFilePath, destinationFilePath);
-        return new Mv(sourceFilePath, destinationFilePath, cp);
-    }*/
-
     public void execute() {
         cp.execute();
         try {

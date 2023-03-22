@@ -1,6 +1,7 @@
 package program.cat;
 
 import program.Command;
+import program.Util;
 
 import java.io.*;
 import java.nio.charset.StandardCharsets;
@@ -20,6 +21,7 @@ public class Cat implements Command {
     public Cat(List<Path> paths) { //todo. 널체크 , 요소널체크, 깊은복사, 읽기전용
         // todo 안보고 틀리지 않을때까지 작성해보기
         List<Path> newPaths = Collections.unmodifiableList(paths);
+        Util.checkDataParam(newPaths);
 
         if (paths.size() == 0) {
             throw new IllegalArgumentException();
