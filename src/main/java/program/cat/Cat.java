@@ -17,10 +17,9 @@ public class Cat implements Command {
 
     private final List<Path> paths;
 
-    public Cat(List<Path> paths) { //todo. 널체크 , 요소널체크, 깊은복사, 읽기전용
-        // todo 안보고 틀리지 않을때까지 작성해보기
-        List<Path> unmodifiedPaths = Util.checkParam(paths);
-        this.paths = unmodifiedPaths;
+    public Cat(List<Path> paths) {
+        List<Path> checkedPaths = Util.checkParam(paths);
+        this.paths = checkedPaths;
     }
 
     public static Cat fromPaths(List<String> filePathStrings) {
