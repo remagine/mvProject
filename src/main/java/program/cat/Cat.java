@@ -8,7 +8,6 @@ import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
@@ -21,11 +20,8 @@ public class Cat implements Command {
     public Cat(List<Path> paths) { //todo. 널체크 , 요소널체크, 깊은복사, 읽기전용
         // todo 안보고 틀리지 않을때까지 작성해보기
         List<Path> newPaths = Collections.unmodifiableList(paths);
-        Util.checkDataParam(newPaths);
+        List<Path> unmoidifiedPaths = Util.checkParam(paths);
 
-        if (paths.size() == 0) {
-            throw new IllegalArgumentException();
-        }
         this.paths = paths;
     }
 

@@ -43,11 +43,8 @@ public class example {
 
         user.getCar().setName("산타페");
 
+
         System.out.println(user.getCar().getName());
         System.out.println(deepCopiedUser.getCar().getName());
-
-
-
-
     }
 }
