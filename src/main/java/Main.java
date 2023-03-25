@@ -8,6 +8,7 @@ import java.io.*;
 import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Objects;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -16,13 +17,6 @@ import static program.CommandType.*;
 
 public class Main {
     public static void main(String[] args) {
-        if (true) {
-            try {
-                throw new NullPointerException();
-            } catch (Exception e) {
-                throw e;
-            }
-        }
         InputStream inputStream = System.in;
 
         try (BufferedInputStream bufferedInputStream = new BufferedInputStream(inputStream, 8192);
@@ -33,7 +27,7 @@ public class Main {
                 List<String> inputStringList = List.of(inputString.split(" "));
                 String commandStr = inputStringList.get(0);
 
-                CommandType commandType = null;
+                CommandType commandType;
                 try {
                     commandType = CommandType.fromString(commandStr);
                 } catch (IllegalArgumentException e) {
@@ -43,7 +37,6 @@ public class Main {
                 List<String> filePaths = inputStringList.subList(1, inputStringList.size());
 
                 Command program = null;
-
                 if (commandType == MV && filePaths.size() == 2) {
                     String sourceFilePath = filePaths.get(0);
                     String destinationFilePath = filePaths.get(1);
@@ -57,20 +50,19 @@ public class Main {
                     program = Cp.fromPath(sourceFilePath, destinationFilePath);
                 }
 
-                if (commandType == CAT && !filePaths.isEmpty()) {
+                if (commandType == CAT) {
                     program = Cat.fromPaths(filePaths);
                 }
 
-                if (program == null) {
+                if (Objects.isNull(program)) {
                     System.out.println("program doesn't exist");
-                    break;
+                    continue;
                 }
 
                 program.execute();
             }
         } catch (IOException | IllegalArgumentException e) {
             e.printStackTrace();
-
         }
     }
 }

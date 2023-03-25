@@ -1,11 +1,13 @@
 package program.cp;
 
 import program.Command;
+import program.Util;
 
 import java.io.*;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.List;
 import java.util.Objects;
 
 public class Cp implements Command {
@@ -27,6 +29,14 @@ public class Cp implements Command {
                 Paths.get(destinationFilePath)
         );
     }
+
+//    public static Cp fromPath(List<String> paths) {
+//        List<String> checkedParam = Util.checkParam(paths);
+//        return new Cp(
+//                Paths.get(sourceFilePath),
+//                Paths.get(destinationFilePath)
+//        );
+//    }
 
     @Override
     public void execute() {
