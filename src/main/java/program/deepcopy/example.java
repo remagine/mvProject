@@ -17,6 +17,10 @@ public class example {
         public Car getCar() {
             return car;
         }
+
+        public User withCar(Car car) {
+            return new User(this.name, car);
+        }
     }
 
     public static class Car {
@@ -37,7 +41,8 @@ public class example {
 
 
     public static void main(String[] args) {
-        User user = new User("택상", new Car("벤츠"));
+        User user = new User("택상", null);
+        User newUser = user.withCar(new Car("페라리"));
         /*User deepCopiedUser = new User(user.getName(), user.getCar());*/
         User deepCopiedUser = new User(user.getName() , new Car(user.getCar().getName()));
 

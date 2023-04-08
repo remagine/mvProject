@@ -18,8 +18,7 @@ public class Cat implements Command {
     private final List<Path> paths;
 
     public Cat(List<Path> paths) {
-        List<Path> checkedPaths = Util.checkParam(paths);
-        this.paths = checkedPaths;
+        this.paths = validatePaths(paths);
     }
 
     public static Cat fromPaths(List<String> filePathStrings) {
@@ -51,14 +50,14 @@ public class Cat implements Command {
             } catch (IOException e) {
                 return new ByteArrayInputStream(("파일이 존재하지 않습니다. path : " + path).getBytes(StandardCharsets.UTF_8));
             }
-        }).collect(Collectors.toList());
+        })
+                .map(inputStream -> new BufferedInputStream(inputStream, BUFFER_SIZE))
+                .collect(Collectors.toList());
         // 2. List<InputStream> 을 출력
         inputStreams.forEach(inputStream -> {
-            try(inputStream;
-                BufferedInputStream bufferedInputStream = new BufferedInputStream(inputStream, BUFFER_SIZE);
-            ){
+            try(inputStream;){
                 while(true){
-                    int len = bufferedInputStream.read(buffer);
+                    int len = inputStream.read(buffer);
                     if(len == -1) {
                         break;
                     }
@@ -74,5 +73,14 @@ public class Cat implements Command {
         } catch (IOException e) {
             e.printStackTrace();
         }
+    }
+
+    private static <T> List<T> validatePaths(List<T> paths){
+        if(paths == null){
+            return Collections.emptyList();
+        }
+        return paths.stream()
+                .filter(Objects::nonNull)
+                .collect(Collectors.toUnmodifiableList());
     }
 }

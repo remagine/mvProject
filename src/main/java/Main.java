@@ -1,5 +1,4 @@
-import program.CommandType;
-import program.Command;
+import program.*;
 import program.cat.Cat;
 import program.cp.Cp;
 import program.mv.Mv;
@@ -8,8 +7,7 @@ import java.io.*;
 import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
 import java.util.List;
-import java.util.Objects;
-import java.util.Set;
+import java.util.function.Consumer;
 import java.util.stream.Collectors;
 
 import static program.CommandType.*;
@@ -17,51 +15,62 @@ import static program.CommandType.*;
 
 public class Main {
     public static void main(String[] args) {
+        readyCommandInput(inputCommand -> {
+
+            // &&를 기준으로 파싱하여 N개의 커맨드라인을 파싱한다.
+            List<String> commands = Arrays.stream(inputCommand.split("&&"))
+                    .map(String::trim)
+                    .collect(Collectors.toUnmodifiableList());
+
+            List<CommandArgument> commandArguments = commands.stream()
+                    .map(CommandArgument::from)
+                    .collect(Collectors.toUnmodifiableList());
+
+            CommandFactory commandFactory = new CommandFactory();
+
+            List<Command> _commands = commandArguments.stream()
+                    .map(commandFactory::create)
+                    .collect(Collectors.toUnmodifiableList());
+
+            _commands.forEach(Command::execute);
+        });
+    }
+
+    private static BufferedReader createBufferedReader(InputStream inputStream) {
+        BufferedInputStream bufferedInputStream = new BufferedInputStream(inputStream, 8192);
+        InputStreamReader inputStreamReader = new InputStreamReader(bufferedInputStream, StandardCharsets.UTF_8);
+        BufferedReader bufferedReader = new BufferedReader(inputStreamReader, 8192);
+
+        return bufferedReader;
+    }
+
+    private static CommandType toCommandType(String commandStr){
+        if(commandStr == null){
+            System.out.println("command not found");
+            throw new IllegalArgumentException("commandStr is null");
+        }
+
+        try {
+            return CommandType.fromString(commandStr);
+        } catch (Exception e) {
+            System.out.println("command not found");
+            throw e;
+        }
+    }
+
+    private static void readyCommandInput(Consumer<String> commandConsumer){
         InputStream inputStream = System.in;
 
-        try (BufferedInputStream bufferedInputStream = new BufferedInputStream(inputStream, 8192);
-             InputStreamReader inputStreamReader = new InputStreamReader(bufferedInputStream, StandardCharsets.UTF_8);
-             BufferedReader bufferedReader = new BufferedReader(inputStreamReader, 8192);) {
+        try (BufferedReader bufferedReader = createBufferedReader(inputStream)) {
             while (true) {
-                String inputString = bufferedReader.readLine();
-                List<String> inputStringList = List.of(inputString.split(" "));
-                String commandStr = inputStringList.get(0);
-
-                CommandType commandType;
                 try {
-                    commandType = CommandType.fromString(commandStr);
-                } catch (IllegalArgumentException e) {
-                    System.out.println("command not found");
-                    continue;
+                    String inputCommand = bufferedReader.readLine();
+                    commandConsumer.accept(inputCommand);
+                } catch (Exception e){
+                    e.printStackTrace();
                 }
-                List<String> filePaths = inputStringList.subList(1, inputStringList.size());
-
-                Command program = null;
-                if (commandType == MV && filePaths.size() == 2) {
-                    String sourceFilePath = filePaths.get(0);
-                    String destinationFilePath = filePaths.get(1);
-                    Cp cp = Cp.fromPath(sourceFilePath, destinationFilePath);
-                    program = new Mv(sourceFilePath, cp);
-                }
-
-                if (commandType == CP && filePaths.size() == 2) {
-                    String sourceFilePath = filePaths.get(0);
-                    String destinationFilePath = filePaths.get(1);
-                    program = Cp.fromPath(sourceFilePath, destinationFilePath);
-                }
-
-                if (commandType == CAT) {
-                    program = Cat.fromPaths(filePaths);
-                }
-
-                if (Objects.isNull(program)) {
-                    System.out.println("program doesn't exist");
-                    continue;
-                }
-
-                program.execute();
             }
-        } catch (IOException | IllegalArgumentException e) {
+        } catch (Exception e){
             e.printStackTrace();
         }
     }
